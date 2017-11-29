@@ -73,6 +73,36 @@
                     [activityIndicator stopAnimating];
                     [self.docInteractionController presentPreviewAnimated:YES];
                 });
+            } else {
+
+                double delayInSeconds = 0.1;
+                dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+                dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+                    [activityIndicator stopAnimating];
+
+                    NSString *language = [[NSLocale preferredLanguages] objectAtIndex:0];
+                    NSDictionary *languageDic = [NSLocale componentsFromLocaleIdentifier:language];
+                    NSString *languageCode = [languageDic objectForKey:@"kCFLocaleLanguageCodeKey"];
+
+                    NSString *message = @"Failed to load image. Are you online?";
+                    if([languageCode isEqual: @"de"]) {
+                        message = @"Das Bild konnte nicht geladen werden. Bist du online?";
+                    } else if([languageCode  isEqual: @"hr"] || [languageCode  isEqual: @"sr"] || [languageCode  isEqual: @"ba"]) {
+                        message = @"Neuspje?no u?itavanje slike. Da li ste online?";
+                    }
+
+                    UIAlertView *toast = [[UIAlertView alloc] initWithTitle:nil
+                                                                    message:message
+                                                                   delegate:nil
+                                                          cancelButtonTitle:nil
+                                                          otherButtonTitles:nil, nil];
+                    [toast show];
+                    int duration = 2; // in seconds
+
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, duration * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                        [toast dismissWithClickedButtonIndex:0 animated:YES];
+                    });
+                });
             }
         }];
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
